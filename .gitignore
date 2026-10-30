@@ -1,0 +1,32 @@
+
+# ---- secrets & environment (added by scaffold) ----
+.env
+.env.*
+!.env.example
+fleet.json
+*.pfx
+*.key
+*.pem
+secrets.json
+appsettings.*.local.json
+
+# ---- build output that can embed identifiers ----
+dist/
+build/
+out/
+node_modules/
+__pycache__/
+*.dacpac
+*.exe
+*.blob
+
+# ---- editor / OS ----
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Private leak-scan term lists: their values ARE the disclosure. Never commit.
+ci/leak-scan.private
+ci/leak-scan.private-cs

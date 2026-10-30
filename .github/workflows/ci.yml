@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint and manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module PSScriptAnalyzer -RequiredVersion 1.23.0 -Force -Scope CurrentUser
+          $found = @(Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1)
+          $found | Format-Table -AutoSize RuleName, Severity, ScriptName, Line, Message | Out-String -Width 220 | Write-Host
+          if ($found.Count) { Write-Host "::error::PSScriptAnalyzer: $($found.Count) finding(s)"; exit 1 }
+
+      - name: Manifest, frontmatter and README claims
+        shell: pwsh
+        run: |
+          $p = Get-Content plugin.json -Raw | ConvertFrom-Json
+          if ($p.skills -notcontains './skills/sql-migration-generator') { Write-Host '::error::plugin.json does not list the skill'; exit 1 }
+          $skill = Get-Content skills/sql-migration-generator/SKILL.md -Raw
+          if ($skill -notmatch '(?s)\A---\r?\nname: sql-migration-generator\r?\ndescription: .+?\r?\n---') { Write-Host '::error::SKILL.md frontmatter must carry name and description'; exit 1 }
+          # The README's rule count must match the self-validation checklist.
+          $checks = ([regex]::Matches(($skill -split '## Self-Validation Checklist')[1].Split('## Forbidden')[0], '(?m)^\d+\. \*\*')).Count
+          $readme = Get-Content README.md -Raw
+          if ($readme -notmatch "following $checks explicit rules") { Write-Host "::error::README.md must say 'following $checks explicit rules' (the checklist has $checks)"; exit 1 }
+          foreach ($f in 'idempotent-patterns','column-modification','sql-standards','index-standards','security-constraints','repo-config','impact-analysis','migration-review','dependency-ordering') {
+            if (-not (Test-Path "skills/sql-migration-generator/references/$f.md")) { Write-Host "::error::references/$f.md is missing (CI prompts read it by name)"; exit 1 }
+          }
+          Write-Host "plugin.json, SKILL.md and README agree ($checks rules)."
+
+  test:
+    name: Pester (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Pester
+        shell: pwsh
+        run: |
+          Install-Module Pester -RequiredVersion 5.7.1 -Force -SkipPublisherCheck -Scope CurrentUser
+          Import-Module Pester -RequiredVersion 5.7.1
+          $c = New-PesterConfiguration
+          $c.Run.Path = './tests'
+          $c.Run.PassThru = $true
+          $c.Output.Verbosity = 'Detailed'
+          $r = Invoke-Pester -Configuration $c
+          if ($r.FailedCount -gt 0 -or $r.PassedCount -eq 0) { exit 1 }
+          if ((Get-Content README.md -Raw) -notmatch "Pester 5\+: $($r.TotalCount) tests") { Write-Host "::error::README.md must say 'Pester 5+: $($r.TotalCount) tests'"; exit 1 }
+
+  e2e:
+    name: SQL Server 2022 + Flyway end to end
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Generate, deploy twice, assert
+        shell: pwsh
+        run: ./tests/e2e/Invoke-E2E.ps1 -WorkDir "$env:RUNNER_TEMP/e2e"
+
+  leak-scan:
+    name: No internal identifiers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Leak scan self-test
+        run: bash ci/leak-scan.test.sh
+      - name: Scan
+        env:
+          # Named terms live in repository secrets, never in this public file.
+          # Fork pull requests get no secrets, so only trusted runs require them.
+          LEAK_EXTRA_PAT: ${{ secrets.LEAK_EXTRA_PAT }}
+          LEAK_EXTRA_PAT_CS: ${{ secrets.LEAK_EXTRA_PAT_CS }}
+          LEAK_REQUIRE_EXTRAS: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        run: bash ci/leak-scan.sh

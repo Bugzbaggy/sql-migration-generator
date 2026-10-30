@@ -1,0 +1,13 @@
+{
+  "name": "sql-migration-generator",
+  "description": "Generates Flyway migration scripts for SQL Server from the changes on an SSDT database branch: a versioned V__ script written from the diff by rule, and a repeatable R__ script built deterministically from the source files in dependency order. Checks that both deploy in order (seed before foreign key, column before use, nothing used after a drop), maps SQLCMD variables, and keeps the deploy-role grants and .sqlproj items in step.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Renz Bagasbas",
+    "email": "92191389+Bugzbaggy@users.noreply.github.com",
+    "url": "https://github.com/Bugzbaggy"
+  },
+  "homepage": "https://github.com/Bugzbaggy/sql-migration-generator",
+  "license": "MIT",
+  "skills": ["./skills/sql-migration-generator"]
+}

@@ -1,0 +1,16 @@
+* text=auto eol=lf
+*.ps1  text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+*.sln  text eol=crlf
+*.sqlproj text eol=crlf
+# SSDT and Flyway scripts on Windows are CRLF; the golden files in examples/expected
+# compare equal on every platform because the tests normalise line endings.
+*.sql  text eol=crlf
+*.png binary
+*.jpg binary
+*.pdf binary
+
+# Shell scripts and git hooks must stay LF and executable.
+*.sh   text eol=lf
+*.bats text eol=lf

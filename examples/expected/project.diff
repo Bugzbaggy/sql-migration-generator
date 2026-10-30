@@ -1,0 +1,68 @@
+diff --git a/Sales/Sales.sqlproj b/Sales/Sales.sqlproj
+--- a/Sales/Sales.sqlproj
++++ b/Sales/Sales.sqlproj
+@@ -34,6 +34,11 @@
+     <Folder Include="sales\Stored Procedures\" />
+     <Folder Include="sales\Tables\" />
+     <Folder Include="sales\Views\" />
++    <Folder Include="audit\" />
++    <Folder Include="audit\Tables\" />
++    <Folder Include="ref\Tables\" />
++    <Folder Include="Scripts\" />
++    <Folder Include="Scripts\ReferenceData\" />
+   </ItemGroup>
+   <ItemGroup>
+     <Build Include="Security\ref.sql" />
+@@ -43,10 +48,15 @@
+     <Build Include="ref\Synonyms\Currency.sql" />
+     <Build Include="sales\Functions\fnOrderTotal.sql" />
+     <Build Include="sales\Stored Procedures\Customer_Get.sql" />
+-    <Build Include="sales\Stored Procedures\Customer_GetLegacy.sql" />
+     <Build Include="sales\Tables\Customer.sql" />
+     <Build Include="sales\Tables\Order.sql" />
+     <Build Include="sales\Views\vwCustomerOrders.sql" />
++    <Build Include="audit\Tables\OrderChange.sql" />
++    <Build Include="ref\Synonyms\Country.sql" />
++    <Build Include="ref\Tables\OrderStatus.sql" />
++    <Build Include="sales\Stored Procedures\Order_GetByStatus.sql" />
++    <Build Include="sales\Views\vwOrderStatus.sql" />
++    <Build Include="Security\audit.sql" />
+   </ItemGroup>
+   <ItemGroup>
+     <SqlCmdVariable Include="Catalog">
+@@ -54,4 +64,7 @@
+       <Value>$(SqlCmdVar__1)</Value>
+     </SqlCmdVariable>
+   </ItemGroup>
++  <ItemGroup>
++    <None Include="Scripts\ReferenceData\ref.OrderStatus.sql" />
++  </ItemGroup>
+ </Project>
+diff --git a/Sales/Security/role_app_ci.sql b/Sales/Security/role_app_ci.sql
+--- a/Sales/Security/role_app_ci.sql
++++ b/Sales/Security/role_app_ci.sql
+@@ -46,3 +46,24 @@ GO
+ 
+ GRANT REFERENCES ON SCHEMA::[sales] TO [role_app_ci];
+ GO
++
++GRANT ALTER ON SCHEMA::[audit] TO [role_app_ci];
++GO
++
++GRANT SELECT ON SCHEMA::[audit] TO [role_app_ci];
++GO
++
++GRANT INSERT ON SCHEMA::[audit] TO [role_app_ci];
++GO
++
++GRANT UPDATE ON SCHEMA::[audit] TO [role_app_ci];
++GO
++
++GRANT DELETE ON SCHEMA::[audit] TO [role_app_ci];
++GO
++
++GRANT EXECUTE ON SCHEMA::[audit] TO [role_app_ci];
++GO
++
++GRANT REFERENCES ON SCHEMA::[audit] TO [role_app_ci];
++GO

@@ -1,0 +1,24 @@
+{
+  "database": "Sales",
+  "project": "Sales/Sales.sqlproj",
+  "sourceRoot": "Sales",
+  "migrationDir": "Migration",
+  "baseBranch": "main",
+  "firstVersion": "V1.00001",
+  "ciRole": "role_app_ci",
+  "ciRoleFile": "Sales/Security/role_app_ci.sql",
+  "sqlcmdVariables": {
+    "Catalog": "AppCatalog"
+  },
+  "lineEndings": "crlf",
+  "excludeDirs": [
+    "bin",
+    "obj",
+    "Scripts",
+    "Security",
+    "Storage",
+    "Properties",
+    "external-refs",
+    ".vs"
+  ]
+}

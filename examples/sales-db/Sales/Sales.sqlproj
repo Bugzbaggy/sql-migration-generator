@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Sales</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{11111111-1111-1111-1111-111111111111}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Sales</RootNamespace>
+    <AssemblyName>Sales</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Security\" />
+    <Folder Include="ref\" />
+    <Folder Include="ref\Synonyms\" />
+    <Folder Include="sales\" />
+    <Folder Include="sales\Functions\" />
+    <Folder Include="sales\Stored Procedures\" />
+    <Folder Include="sales\Tables\" />
+    <Folder Include="sales\Views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Security\ref.sql" />
+    <Build Include="Security\role_app_ci.sql" />
+    <Build Include="Security\role_reporting.sql" />
+    <Build Include="Security\sales.sql" />
+    <Build Include="ref\Synonyms\Currency.sql" />
+    <Build Include="sales\Functions\fnOrderTotal.sql" />
+    <Build Include="sales\Stored Procedures\Customer_Get.sql" />
+    <Build Include="sales\Stored Procedures\Customer_GetLegacy.sql" />
+    <Build Include="sales\Tables\Customer.sql" />
+    <Build Include="sales\Tables\Order.sql" />
+    <Build Include="sales\Views\vwCustomerOrders.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <SqlCmdVariable Include="Catalog">
+      <DefaultValue>AppCatalog</DefaultValue>
+      <Value>$(SqlCmdVar__1)</Value>
+    </SqlCmdVariable>
+  </ItemGroup>
+</Project>
