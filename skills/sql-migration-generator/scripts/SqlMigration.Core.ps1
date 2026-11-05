@@ -1280,10 +1280,12 @@ function Update-SqlMigProject($Cfg, $Context, [switch]$Apply) {
     $folder = (Get-SqlMigPathParts $f).Folder
     $itemKind = if ($folder -and ($script:ObjectFolders -contains $folder -or $folder -eq 'Security' -or $folder -eq 'Stored Procedures')) { 'Build' } else { 'None' }
     if (-not $covered) { $toAdd += [pscustomobject]@{ Kind = $itemKind; Include = $rel } }
-    $dir = Split-Path $rel -Parent
-    while ($dir) {
+    # Walk the parents on '\' itself: on Linux, Split-Path returns them with '/'.
+    $i = $rel.LastIndexOf('\')
+    while ($i -gt 0) {
+      $dir = $rel.Substring(0, $i)
       if ($folders -notcontains $dir -and $folderAdd -notcontains $dir) { $folderAdd += $dir }
-      $dir = Split-Path $dir -Parent
+      $i = $dir.LastIndexOf('\')
     }
   }
   $stale = @()
